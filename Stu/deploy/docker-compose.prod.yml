@@ -53,7 +53,7 @@ services:
     ports:
       - "9000:8080"
     env_file:
-      - ../.env
+      - ../Stu/.env
     environment:
       SERVICE_NAME: api-gateway
       DATABASE_URL: ${API_GATEWAY_DATABASE_URL:-${DATABASE_URL}}
@@ -80,7 +80,7 @@ services:
         SERVICE: cmd/auth
     restart: unless-stopped
     env_file:
-      - ../.env
+      - ../Stu/.env
     environment:
       SERVICE_NAME: auth
       DATABASE_URL: ${AUTH_DATABASE_URL:-${DATABASE_URL}}
@@ -99,7 +99,7 @@ services:
         SERVICE: cmd/realtime
     restart: unless-stopped
     env_file:
-      - ../.env
+      - ../Stu/.env
     environment:
       SERVICE_NAME: realtime
       DATABASE_URL: ${REALTIME_DATABASE_URL:-${DATABASE_URL}}
@@ -118,7 +118,7 @@ services:
         SERVICE: cmd/media
     restart: unless-stopped
     env_file:
-      - ../.env
+      - ../Stu/.env
     environment:
       SERVICE_NAME: media
       DATABASE_URL: ${MEDIA_DATABASE_URL:-${DATABASE_URL}}
@@ -135,7 +135,7 @@ services:
     volumes:
       - ../services/moderation-agent:/app
     env_file:
-      - ../.env
+      - ../Stu/.env
     environment:
       PORT: 8085
     restart: unless-stopped
