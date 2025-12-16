@@ -11,10 +11,20 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ../migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-stu} -d ${POSTGRES_DB:-stu}"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
 
   redis:
     image: redis:7
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
 
   minio:
     image: quay.io/minio/minio:RELEASE.2024-09-22T00-33-43Z
@@ -46,13 +56,21 @@ services:
       - ../.env
     environment:
       SERVICE_NAME: api-gateway
+      DATABASE_URL: ${API_GATEWAY_DATABASE_URL:-${DATABASE_URL}}
+      REDIS_ADDR: ${REDIS_ADDR}
     depends_on:
-      - postgres
-      - redis
-      - auth
-      - realtime
-      - media
-      - moderation-agent
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth:
+        condition: service_started
+      realtime:
+        condition: service_started
+      media:
+        condition: service_started
+      moderation-agent:
+        condition: service_started
 
   auth:
     build:
@@ -65,9 +83,13 @@ services:
       - ../.env
     environment:
       SERVICE_NAME: auth
+      DATABASE_URL: ${AUTH_DATABASE_URL:-${DATABASE_URL}}
+      REDIS_ADDR: ${REDIS_ADDR}
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   realtime:
     build:
@@ -80,9 +102,13 @@ services:
       - ../.env
     environment:
       SERVICE_NAME: realtime
+      DATABASE_URL: ${REALTIME_DATABASE_URL:-${DATABASE_URL}}
+      REDIS_ADDR: ${REDIS_ADDR}
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   media:
     build:
@@ -95,9 +121,12 @@ services:
       - ../.env
     environment:
       SERVICE_NAME: media
+      DATABASE_URL: ${MEDIA_DATABASE_URL:-${DATABASE_URL}}
     depends_on:
-      - minio
-      - postgres
+      minio:
+        condition: service_started
+      postgres:
+        condition: service_healthy
 
   moderation-agent:
     image: python:3.11-slim

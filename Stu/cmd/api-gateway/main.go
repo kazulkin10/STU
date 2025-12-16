@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	clientfs "stu/client"
 	"stu/internal/admin"
 	"stu/internal/adminauth"
 	"stu/internal/app"
@@ -129,10 +130,8 @@ func main() {
 	server.Router.Handle("/v1/auth", authProxy)
 	server.Router.Handle("/v1/auth/*", authProxy)
 
-	adminFS := http.StripPrefix("/admin", http.FileServer(http.Dir("client/admin/public")))
-	server.Router.Handle("/admin/*", adminFS)
-	fileServer := http.FileServer(http.Dir("client/web/public"))
-	server.Router.Handle("/*", fileServer)
+	server.Router.Handle("/admin/*", clientfs.AdminHandler())
+	server.Router.Handle("/*", clientfs.WebHandler())
 
 	if err := server.Start(context.Background()); err != nil {
 		logger.Fatal().Err(err).Msg("api-gateway terminated")
