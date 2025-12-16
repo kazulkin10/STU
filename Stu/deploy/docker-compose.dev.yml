@@ -45,7 +45,7 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - ../.env.example
+      - ../.env
     environment:
       SERVICE_NAME: api-gateway
     depends_on:
@@ -65,7 +65,7 @@ services:
     ports:
       - "8081:8081"
     env_file:
-      - ../.env.example
+      - ../.env
     environment:
       SERVICE_NAME: auth
     depends_on:
@@ -81,7 +81,7 @@ services:
     ports:
       - "8082:8082"
     env_file:
-      - ../.env.example
+      - ../.env
     environment:
       SERVICE_NAME: realtime
     depends_on:
@@ -97,7 +97,7 @@ services:
     ports:
       - "8083:8083"
     env_file:
-      - ../.env.example
+      - ../.env
     environment:
       SERVICE_NAME: media
     depends_on:
@@ -113,7 +113,7 @@ services:
     ports:
       - "8085:8085"
     env_file:
-      - ../.env.example
+      - ../.env
     environment:
       PORT: 8085
 

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 import httpx
 
 logger = logging.getLogger("moderation-agent")
-logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
+logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO").upper())
 
 app = FastAPI(title="Stu Moderation Agent")
 
