@@ -1,0 +1,270 @@
+:root {
+  --bg: #0f1116;
+  --panel: #161a21;
+  --panel-2: #1e2430;
+  --accent: #6da8ff;
+  --accent-2: #4b78ff;
+  --text: #e7ecf5;
+  --muted: #9aa5b8;
+  --danger: #ff6b6b;
+  --success: #9cffb4;
+  --shadow: 0 10px 35px rgba(0,0,0,0.3);
+  --border: 1px solid rgba(255,255,255,0.05);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: radial-gradient(circle at 20% 20%, rgba(109,168,255,0.08), transparent 30%), var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--panel);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 10px;
+  z-index: 20;
+}
+.logo { font-weight: 800; letter-spacing: 0.5px; }
+.top-actions { display: flex; gap: 8px; align-items: center; }
+.badge {
+  padding: 6px 10px;
+  background: var(--panel-2);
+  border-radius: 10px;
+  border: var(--border);
+}
+.hidden { display: none !important; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.panel {
+  background: var(--panel);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  border: var(--border);
+  min-height: 420px;
+}
+
+.auth-panel {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.tab {
+  border: var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  padding: 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease;
+}
+.tab.active { background: var(--accent); color: #0f1116; transform: translateY(-1px); }
+.tab-content {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+label { font-size: 14px; color: var(--muted); }
+input, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+}
+button {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border: none;
+  color: #0f1116;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+button:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(109,168,255,0.25); }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+.ghost {
+  background: var(--panel-2);
+  color: var(--text);
+}
+.hint { color: var(--muted); font-size: 13px; }
+.alert {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255,107,107,0.12);
+  border: 1px solid rgba(255,107,107,0.3);
+  color: #ffc9c9;
+}
+
+.app-panel {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 14px;
+}
+.sidebar {
+  background: var(--panel-2);
+  border-radius: 16px;
+  padding: 12px;
+  border: var(--border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.new-dialog {
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 10px;
+  border: var(--border);
+  margin-bottom: 10px;
+}
+.new-dialog .actions { display: flex; gap: 8px; margin-top: 8px; }
+.dialog-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 4px;
+}
+.dialog {
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: var(--border);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: background 120ms ease, transform 120ms ease;
+}
+.dialog:hover { background: rgba(109,168,255,0.08); transform: translateY(-1px); }
+.dialog.active { border-color: rgba(109,168,255,0.5); }
+.dialog .title { font-weight: 700; }
+.dialog .preview { color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; }
+.muted { color: var(--muted); }
+.empty { text-align: center; margin-top: 16px; }
+
+.chat {
+  background: var(--panel-2);
+  border-radius: 16px;
+  padding: 14px;
+  border: var(--border);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 0;
+}
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.chat-title { font-weight: 800; }
+.status-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #555;
+  box-shadow: 0 0 12px rgba(0,0,0,0.2);
+}
+.status-dot.ok { background: var(--success); }
+.status-dot.off { background: #555; }
+
+.messages {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  background: var(--panel);
+  border-radius: 12px;
+  border: var(--border);
+}
+.bubble {
+  max-width: 70%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #1f2a3b;
+  color: var(--text);
+  align-self: flex-start;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  position: relative;
+}
+.bubble.me {
+  background: linear-gradient(135deg, #6da8ff, #4b78ff);
+  color: #0f1116;
+  align-self: flex-end;
+}
+.meta {
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  align-items: center;
+}
+.tick { font-size: 12px; opacity: 0.8; }
+.tick.read { color: var(--success); }
+
+.composer {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 60px;
+  gap: 8px;
+  align-items: center;
+}
+#messageInput { background: var(--panel); border: var(--border); }
+#sendMessage { height: 100%; }
+
+.alert-inline {
+  background: rgba(255,107,107,0.14);
+  border: 1px solid rgba(255,107,107,0.3);
+  color: #ffc9c9;
+  padding: 8px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 960px) {
+  .layout { grid-template-columns: 1fr; }
+  .app-panel { grid-template-columns: 1fr; }
+  .sidebar { order: 2; }
+  .chat { order: 1; min-height: 60vh; }
+}

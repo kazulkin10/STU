@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stu — приватный мессенджер</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="logo">Stu</div>
+      <div class="top-actions">
+        <div id="userBadge" class="badge hidden"></div>
+        <button id="btnLogout" class="ghost hidden">Выйти</button>
+        <button id="btnAuth" class="ghost">Войти/Регистрация</button>
+      </div>
+    </header>
+    <main class="layout">
+      <section class="panel auth-panel" id="authPanel">
+        <div class="tabs">
+          <button data-tab="login" class="tab active">Вход</button>
+          <button data-tab="register" class="tab">Регистрация</button>
+          <button data-tab="verify" class="tab">Подтверждение</button>
+        </div>
+        <div class="tab-content" data-tab="login">
+          <label>Email</label>
+          <input id="loginEmail" type="email" placeholder="you@example.com">
+          <label>Пароль</label>
+          <input id="loginPassword" type="password" placeholder="••••••••">
+          <button id="loginSubmit">Войти</button>
+          <div class="hint">Нет аккаунта? Зарегистрируйтесь и подтвердите email.</div>
+        </div>
+        <div class="tab-content hidden" data-tab="register">
+          <label>Email</label>
+          <input id="regEmail" type="email" placeholder="you@example.com">
+          <label>Пароль</label>
+          <input id="regPassword" type="password" placeholder="••••••••">
+          <button id="regSubmit">Зарегистрироваться</button>
+          <div class="hint">Письмо с кодом придёт в Mailpit (dev).</div>
+        </div>
+        <div class="tab-content hidden" data-tab="verify">
+          <label>Email</label>
+          <input id="verEmail" type="email" placeholder="you@example.com">
+          <label>Код из письма</label>
+          <input id="verCode" type="text" placeholder="123456">
+          <label>Название устройства</label>
+          <input id="verDevice" type="text" placeholder="Мой ноутбук">
+          <button id="verSubmit">Подтвердить</button>
+        </div>
+        <div id="authError" class="alert hidden"></div>
+      </section>
+
+      <section class="panel app-panel hidden" id="appPanel">
+        <div class="sidebar">
+          <div class="sidebar-header">
+            <div>
+              <div class="title">Диалоги</div>
+              <div class="muted" id="sidebarStatus">Загрузка...</div>
+            </div>
+            <button id="btnNewDialog" class="ghost">+</button>
+          </div>
+          <div class="new-dialog hidden" id="newDialogForm">
+            <input id="newDialogEmail" type="email" placeholder="Email пользователя">
+            <div class="actions">
+              <button id="createDialogSubmit">Создать</button>
+              <button id="cancelDialog" class="ghost">Отмена</button>
+            </div>
+          </div>
+          <div class="dialog-list" id="dialogList"></div>
+          <div class="empty muted hidden" id="dialogEmpty">Нет диалогов. Создайте новый.</div>
+        </div>
+        <div class="chat">
+          <div class="chat-header">
+            <div>
+              <div class="chat-title" id="chatTitle">Выберите диалог</div>
+              <div class="muted" id="chatStatus"></div>
+            </div>
+            <div class="status-dot" id="wsStatus" title="WS статус"></div>
+          </div>
+          <div class="messages" id="messages"></div>
+          <div class="composer">
+            <textarea id="messageInput" placeholder="Напишите сообщение..." rows="2"></textarea>
+            <button id="sendMessage">➤</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: stu
+      POSTGRES_USER: stu
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-stu}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ../migrations:/docker-entrypoint-initdb.d
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2024-09-22T00-33-43Z
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    volumes:
+      - minio:/data
+
+  mailpit:
+    image: axllent/mailpit:v1.20
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+  api-gateway:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        SERVICE: cmd/api-gateway
+    restart: unless-stopped
+    ports:
+      - "9000:8080"
+    env_file:
+      - ../.env
+    environment:
+      SERVICE_NAME: api-gateway
+    depends_on:
+      - postgres
+      - redis
+      - auth
+      - realtime
+      - media
+      - moderation-agent
+
+  auth:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        SERVICE: cmd/auth
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      SERVICE_NAME: auth
+    depends_on:
+      - postgres
+      - redis
+
+  realtime:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        SERVICE: cmd/realtime
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      SERVICE_NAME: realtime
+    depends_on:
+      - postgres
+      - redis
+
+  media:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        SERVICE: cmd/media
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      SERVICE_NAME: media
+    depends_on:
+      - minio
+      - postgres
+
+  moderation-agent:
+    image: python:3.11-slim
+    working_dir: /app
+    command: sh -c "pip install --no-cache-dir -r requirements.txt && python main.py"
+    volumes:
+      - ../services/moderation-agent:/app
+    env_file:
+      - ../.env
+    environment:
+      PORT: 8085
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  minio:

@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stu Админка</title>
+  <style>
+    :root {
+      --bg: #0b1221;
+      --card: #111a2d;
+      --accent: #5dd6ff;
+      --muted: #93a3c7;
+      --danger: #ff6b6b;
+      --success: #5af59b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 20% 20%, rgba(93,214,255,0.08), transparent 30%), var(--bg);
+      color: #e7edff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 32px;
+    }
+    .shell {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      gap: 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.35);
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: rgba(93,214,255,0.4); }
+    h1,h2,h3 { margin: 0 0 10px; }
+    label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 14px; }
+    input, select {
+      width: 100%; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: #0c1424; color: #e7edff; font-size: 15px;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(93,214,255,0.18); }
+    button {
+      border: none; border-radius: 10px; padding: 10px 14px;
+      background: linear-gradient(135deg, #4ac9ff, #6df1b2);
+      color: #041226; font-weight: 700; cursor: pointer;
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(74,201,255,0.35); }
+    button.danger { background: linear-gradient(135deg, #ff6b6b, #ff9e6b); color: #1a0a0a; }
+    button.secondary { background: #15213a; color: #e7edff; border: 1px solid rgba(255,255,255,0.08); }
+    .row { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .hidden { display: none !important; }
+    .status { color: var(--muted); font-size: 14px; margin-top: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    th { color: var(--muted); font-weight: 600; }
+    .pill { padding: 4px 8px; border-radius: 999px; font-size: 12px; background: rgba(93,214,255,0.15); color: var(--accent); }
+    .pill.danger { background: rgba(255,107,107,0.15); color: var(--danger); }
+    .toast { position: fixed; right: 20px; bottom: 20px; background: #0f1a2f; padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="card" id="authCard">
+      <h2>Вход в админку</h2>
+      <div class="row">
+        <div>
+          <label>Email</label>
+          <input id="email" type="email" placeholder="admin@example.com" />
+        </div>
+        <div>
+          <label>Пароль</label>
+          <input id="password" type="password" placeholder="••••••" />
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>Код TOTP</label>
+          <input id="totp" type="text" placeholder="123456" />
+          <button class="secondary" style="margin-top:6px;" id="initTotp">Получить секрет TOTP</button>
+          <div class="status" id="totpSecret"></div>
+        </div>
+        <div>
+          <label>Email-код</label>
+          <input id="emailCode" type="text" placeholder="6 цифр" />
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+        <button id="loginBtn">Шаг 1: пароль</button>
+        <button id="totpBtn" class="secondary">Шаг 2: TOTP</button>
+        <button id="emailBtn" class="secondary">Шаг 3: Email код</button>
+        <span class="status" id="authStatus"></span>
+      </div>
+    </div>
+
+    <div class="card hidden" id="reportsCard">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h2>Жалобы</h2>
+          <div class="status" id="reportStatus">Загрузка...</div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <select id="statusFilter">
+            <option value="">Все</option>
+            <option value="open" selected>Открытые</option>
+            <option value="closed">Закрытые</option>
+          </select>
+          <button id="refreshBtn">Обновить</button>
+        </div>
+      </div>
+      <div class="table-wrap" style="overflow:auto;">
+        <table id="reportTable">
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Кто пожаловался</th>
+              <th>На кого</th>
+              <th>Причина</th>
+              <th>Диалог/Сообщение</th>
+              <th>AI</th>
+              <th>Статус</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    const apiBase = '';
+    const state = { access:null, refresh:null, sessionToken:null, reports:[] };
+
+    const qs = (id) => document.getElementById(id);
+    const authStatus = qs('authStatus');
+    const reportStatus = qs('reportStatus');
+    const toastEl = qs('toast');
+
+    qs('loginBtn').onclick = async () => {
+      try {
+        const email = qs('email').value.trim();
+        const password = qs('password').value;
+        authStatus.textContent = 'Проверяем...';
+        const res = await api('/v1/admin/auth/login', 'POST', { email, password, device_name:'admin-web', platform:'web' }, false);
+        state.sessionToken = res.session_token;
+        authStatus.textContent = 'Пароль ок. Введите TOTP.';
+        showToast('Пароль принят, нужен TOTP');
+      } catch (e) { authStatus.textContent = e.message; showToast(e.message, true); }
+    };
+
+    qs('initTotp').onclick = async () => {
+      if (!state.sessionToken) return showToast('Сначала пройдите шаг пароля', true);
+      try {
+        const res = await api('/v1/admin/auth/totp/init', 'POST', { session_token: state.sessionToken }, false);
+        qs('totpSecret').textContent = `Секрет: ${res.secret} (добавьте в приложение TOTP)`;
+      } catch (e) { showToast(e.message, true); }
+    };
+
+    qs('totpBtn').onclick = async () => {
+      if (!state.sessionToken) return showToast('Нет сессии', true);
+      const code = qs('totp').value.trim();
+      try {
+        await api('/v1/admin/auth/totp', 'POST', { session_token: state.sessionToken, code }, false);
+        authStatus.textContent = 'TOTP ок. Код отправлен на email.';
+        showToast('Введите код из почты');
+      } catch (e) { authStatus.textContent = e.message; showToast(e.message, true); }
+    };
+
+    qs('emailBtn').onclick = async () => {
+      if (!state.sessionToken) return showToast('Нет сессии', true);
+      const code = qs('emailCode').value.trim();
+      try {
+        const res = await api('/v1/admin/auth/email', 'POST', { session_token: state.sessionToken, code, device_name:'admin-web', platform:'web' }, false);
+        state.access = res.access_token;
+        state.refresh = res.refresh_token;
+        localStorage.setItem('admin_refresh', state.refresh);
+        authStatus.textContent = 'Готово. Токены получены.';
+        qs('authCard').classList.add('hidden');
+        qs('reportsCard').classList.remove('hidden');
+        loadReports();
+      } catch (e) { authStatus.textContent = e.message; showToast(e.message, true); }
+    };
+
+    qs('refreshBtn').onclick = loadReports;
+    qs('statusFilter').onchange = loadReports;
+
+    async function api(path, method='GET', body=null, retry=true) {
+      const headers = { 'Content-Type':'application/json' };
+      if (state.access) headers['Authorization'] = `Bearer ${state.access}`;
+      const res = await fetch(apiBase + path, { method, headers, body: body?JSON.stringify(body):null });
+      if (res.status === 401 && state.refresh && retry) {
+        const ok = await refreshTokens();
+        if (ok) return api(path, method, body, false);
+      }
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || 'Ошибка запроса');
+      }
+      return res.json();
+    }
+
+    async function refreshTokens() {
+      try {
+        const res = await fetch('/v1/auth/refresh', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ refresh_token: state.refresh || localStorage.getItem('admin_refresh') })
+        });
+        if (!res.ok) return false;
+        const data = await res.json();
+        state.access = data.access_token;
+        state.refresh = data.refresh_token;
+        localStorage.setItem('admin_refresh', state.refresh);
+        return true;
+      } catch { return false; }
+    }
+
+    async function loadReports() {
+      reportStatus.textContent = 'Загрузка...';
+      try {
+        const status = qs('statusFilter').value;
+        const res = await api(`/v1/admin/reports?status=${status}`);
+        state.reports = res || [];
+        renderReports();
+        reportStatus.textContent = state.reports.length ? '' : 'Нет жалоб';
+      } catch (e) {
+        reportStatus.textContent = e.message;
+        showToast(e.message, true);
+      }
+    }
+
+    function renderReports() {
+      const tbody = qs('reportTable').querySelector('tbody');
+      tbody.innerHTML = '';
+      state.reports.forEach((r) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${new Date(r.created_at).toLocaleString()}</td>
+          <td>${r.reporter_email}</td>
+          <td>${r.reported_email}</td>
+          <td>${r.reason}</td>
+          <td>${(r.dialog_id || '').toString().slice(0,8)} / ${(r.message_id||'')}</td>
+          <td>${renderAI(r)}</td>
+          <td><span class="pill">${r.status}</span></td>
+          <td style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button class="danger" onclick="banUser('${r.reported_user_id}')">Бан</button>
+            <button class="secondary" onclick="unbanUser('${r.reported_user_id}')">Разбан</button>
+            <button class="secondary" onclick="closeReport('${r.id}')">Закрыть</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAI(r) {
+      if (!r.ai_verdict) return '<span class="pill">в обработке</span>';
+      const cls = r.ai_verdict === 'ban_suspected' ? 'pill danger' : 'pill';
+      return `<span class="${cls}">${r.ai_verdict} (${Math.round((r.ai_confidence||0)*100)}%)</span><div class="status">${r.ai_notes||''}</div>`;
+    }
+
+    window.banUser = async (id) => {
+      const reason = prompt('Причина бана?');
+      if (!reason) return;
+      try {
+        await api(`/v1/admin/users/${id}/ban`, 'POST', { reason });
+        showToast('Пользователь забанен');
+        loadReports();
+      } catch (e) { showToast(e.message, true); }
+    };
+
+    window.unbanUser = async (id) => {
+      try {
+        await api(`/v1/admin/users/${id}/unban`, 'POST', {});
+        showToast('Пользователь разбанен');
+        loadReports();
+      } catch (e) { showToast(e.message, true); }
+    };
+
+    window.closeReport = async (id) => {
+      try {
+        await api(`/v1/admin/reports/${id}/close`, 'POST', {});
+        showToast('Жалоба закрыта');
+        loadReports();
+      } catch (e) { showToast(e.message, true); }
+    };
+
+    function showToast(msg, danger=false) {
+      toastEl.textContent = msg;
+      toastEl.style.borderColor = danger ? 'rgba(255,107,107,0.4)' : 'rgba(93,214,255,0.4)';
+      toastEl.classList.remove('hidden');
+      setTimeout(() => toastEl.classList.add('hidden'), 3200);
+    }
+  </script>
+</body>
+</html>

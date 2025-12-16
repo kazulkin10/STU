@@ -1,0 +1,17 @@
+[Unit]
+Description=Stu %i service
+After=network.target
+Wants=network-online.target
+
+[Service]
+User=stu
+Group=stu
+EnvironmentFile=/etc/stu/.env
+WorkingDirectory=/opt/stu
+ExecStart=/opt/stu/bin/%i
+Restart=on-failure
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
