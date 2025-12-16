@@ -16,6 +16,7 @@ RUN adduser -D -g '' stu
 USER stu
 WORKDIR /home/stu
 COPY --from=builder /out/service /usr/local/bin/service
+COPY --from=builder /app/client /home/stu/client
 
 EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/service"]
